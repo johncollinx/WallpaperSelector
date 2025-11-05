@@ -13,6 +13,8 @@ dependencies:
   win32: ^5.5.1
   image: ^4.2.0 # ✅ Add this
   path_provider: ^2.0.0
+  ffi: ^2.0.1
+
 
 dev_dependencies:
   flutter_test:
