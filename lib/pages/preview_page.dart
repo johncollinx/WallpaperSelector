@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:ffi';
 import 'package:win32/win32.dart';
 import '../models/wallpaper_model.dart';
 
