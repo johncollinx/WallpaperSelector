@@ -1,12 +1,15 @@
 import 'dart:io';
-
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ffi';
 import 'package:win32/win32.dart';
 import '../models/wallpaper_model.dart';
+
+// 🧩 Windows API constants (needed for SystemParametersInfo)
+const int SPI_SETDESKWALLPAPER = 20;
+const int SPIF_UPDATEINIFILE = 0x01;
+const int SPIF_SENDCHANGE = 0x02;
 
 class WallpaperPreviewPage extends StatefulWidget {
   final WallpaperModel wallpaper;
@@ -80,7 +83,7 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
     if (selectedIndex == -1) selectedIndex = 0;
   }
 
-  /// 🧩 Helper: copy asset to a temp file so Windows can access it
+  /// 🧩 Copy asset to a temp file so Windows can access it
   Future<String> _copyAssetToFile(String assetPath) async {
     final byteData = await rootBundle.load(assetPath);
     final file = File('${Directory.systemTemp.path}/temp_wallpaper.jpg');
@@ -89,7 +92,7 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
     return file.path;
   }
 
-  /// 🧩 Helper: set wallpaper using Win32 API (direct system call)
+  /// 🧩 Set wallpaper using Win32 API (direct system call)
   Future<void> _setWallpaperWindows(String imagePath) async {
     final pathPtr = TEXT(imagePath);
     final result = SystemParametersInfo(
@@ -101,7 +104,7 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
     free(pathPtr);
 
     if (result == 0) {
-      throw Exception('Failed to set wallpaper via Win32 API');
+      throw Exception('Failed to set wallpaper via Win32 API (Error: ${GetLastError()})');
     }
   }
 
@@ -303,7 +306,7 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
                                 await _setWallpaperWindows(path);
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
+                                    const SnackBar(
                                       content: Text(
                                           'Wallpaper applied successfully!'),
                                       backgroundColor: Colors.green,
@@ -365,4 +368,3 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
     );
   }
 }
-
