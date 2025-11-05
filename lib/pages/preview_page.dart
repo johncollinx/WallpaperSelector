@@ -30,7 +30,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
     wallpapers = [
       WallpaperModel(
         id: 'w1',
-        name: 'Nature 1',
         category: 'Nature',
         image: 'assets/images/nature1.jpg',
         tags: ['Nature', 'Ambience', 'Flowers'],
@@ -38,7 +37,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
       ),
       WallpaperModel(
         id: 'w2',
-        name: 'Nature 2',
         category: 'Nature',
         image: 'assets/images/nature2.jpg',
         tags: ['Mountains', 'Calm', 'Valley'],
@@ -46,7 +44,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
       ),
       WallpaperModel(
         id: 'w3',
-        name: 'Nature 3',
         category: 'Nature',
         image: 'assets/images/nature3.jpg',
         tags: ['Autumn', 'Forest', 'Leaves'],
@@ -54,27 +51,10 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
       ),
       WallpaperModel(
         id: 'w4',
-        name: 'Nature 4',
         category: 'Nature',
         image: 'assets/images/nature4.jpg',
         tags: ['Sky', 'Clouds', 'Sunset'],
         description: 'Capture peaceful tones of sunset above the clouds.',
-      ),
-      WallpaperModel(
-        id: 'w5',
-        name: 'Nature 5',
-        category: 'Nature',
-        image: 'assets/images/nature5.png',
-        tags: ['Stars', 'Night', 'Calm'],
-        description: 'Lose yourself in the quiet beauty of a starlit night.',
-      ),
-      WallpaperModel(
-        id: 'w6',
-        name: 'Nature 6',
-        category: 'Nature',
-        image: 'assets/images/nature6.jpg',
-        tags: ['Ocean', 'Rocks', 'Waves'],
-        description: 'Embrace the soothing power of ocean waves.',
       ),
     ];
 
@@ -82,7 +62,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
     if (selectedIndex == -1) selectedIndex = 0;
   }
 
-  /// Prepares wallpaper for Windows only
   Future<String> _prepareWallpaper(String assetPath) async {
     if (!Platform.isWindows) {
       throw Exception('Wallpaper setting only supported on Windows.');
@@ -90,14 +69,13 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
 
     final byteData = await rootBundle.load(assetPath);
     final bytes = byteData.buffer.asUint8List();
-
     final original = img.decodeImage(bytes);
     if (original == null) throw Exception('Failed to decode image');
 
     final width = GetSystemMetrics(SM_CXSCREEN);
     final height = GetSystemMetrics(SM_CYSCREEN);
-
     final scale = max(width / original.width, height / original.height);
+
     final resized = img.copyResize(
       original,
       width: (original.width * scale).round(),
@@ -109,7 +87,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
     return file.path;
   }
 
-  /// Sets wallpaper on Windows
   Future<void> _setWallpaperWindows(String imagePath) async {
     final pathPtr = imagePath.toNativeUtf16();
     final result = SystemParametersInfoW(
@@ -236,15 +213,14 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
             ),
           ),
           const SizedBox(height: 25),
-          Text(selected.name, style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 20)),
+          Text(selected.category, style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 20)),
           const SizedBox(height: 10),
-          Text(selected.category, style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600])),
-          const SizedBox(height: 20),
           Wrap(spacing: 8, children: selected.tags.map(_buildTag).toList()),
           const SizedBox(height: 20),
           Expanded(
             child: SingleChildScrollView(
-              child: Text(selected.description, style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700], height: 1.5)),
+              child: Text(selected.description,
+                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700], height: 1.5)),
             ),
           ),
           const SizedBox(height: 20),
