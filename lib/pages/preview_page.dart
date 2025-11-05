@@ -1,10 +1,14 @@
+import 'dart:io';
+
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:win32/win32.dart';
 import '../models/wallpaper_model.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class WallpaperPreviewPage extends StatefulWidget {
-  final WallpaperModel wallpaper; // Incoming wallpaper
+  final WallpaperModel wallpaper;
 
   const WallpaperPreviewPage({super.key, required this.wallpaper});
 
@@ -19,7 +23,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
   @override
   void initState() {
     super.initState();
-
     wallpapers = [
       WallpaperModel(
         id: 'w1',
@@ -27,7 +30,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
         category: 'Nature',
         image: 'assets/images/nature1.jpg',
         tags: ['Nature', 'Ambience', 'Flowers'],
-        isFavourite: false,
         description:
             'Discover the pure beauty of “Natural Essence” – your gateway to authentic, nature-inspired experiences.',
       ),
@@ -37,7 +39,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
         category: 'Nature',
         image: 'assets/images/nature2.jpg',
         tags: ['Mountains', 'Calm', 'Valley'],
-        isFavourite: false,
         description: 'Experience serenity with breathtaking mountain views.',
       ),
       WallpaperModel(
@@ -46,7 +47,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
         category: 'Nature',
         image: 'assets/images/nature3.jpg',
         tags: ['Autumn', 'Forest', 'Leaves'],
-        isFavourite: false,
         description: 'Immerse yourself in the warm hues of autumn foliage.',
       ),
       WallpaperModel(
@@ -55,7 +55,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
         category: 'Nature',
         image: 'assets/images/nature4.jpg',
         tags: ['Sky', 'Clouds', 'Sunset'],
-        isFavourite: false,
         description: 'Capture the peaceful tones of sunset above the clouds.',
       ),
       WallpaperModel(
@@ -64,7 +63,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
         category: 'Nature',
         image: 'assets/images/nature5.png',
         tags: ['Stars', 'Night', 'Calm'],
-        isFavourite: false,
         description: 'Lose yourself in the quiet beauty of a starlit night.',
       ),
       WallpaperModel(
@@ -73,7 +71,6 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
         category: 'Nature',
         image: 'assets/images/nature6.jpg',
         tags: ['Ocean', 'Rocks', 'Waves'],
-        isFavourite: false,
         description: 'Embrace the soothing power of the ocean waves.',
       ),
     ];
@@ -82,22 +79,28 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
     if (selectedIndex == -1) selectedIndex = 0;
   }
 
-  Widget _buildImage(String path) {
-    if (path.endsWith('.svg')) {
-      return SvgPicture.asset(
-        path,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-      );
-    } else {
-      return Image.asset(
-        path,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE6E6E6)),
-      );
+  /// 🧩 Helper: copy asset to a temp file so Windows can access it
+  Future<String> _copyAssetToFile(String assetPath) async {
+    final byteData = await rootBundle.load(assetPath);
+    final file = File('${Directory.systemTemp.path}/temp_wallpaper.jpg');
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    print('Wallpaper saved at: ${file.path}');
+    return file.path;
+  }
+
+  /// 🧩 Helper: set wallpaper using Win32 API (direct system call)
+  Future<void> _setWallpaperWindows(String imagePath) async {
+    final pathPtr = TEXT(imagePath);
+    final result = SystemParametersInfo(
+      SPI_SETDESKWALLPAPER,
+      0,
+      pathPtr,
+      SPIF_UPDATEINIFILE | SPIF_SENDCHANGE,
+    );
+    free(pathPtr);
+
+    if (result == 0) {
+      throw Exception('Failed to set wallpaper via Win32 API');
     }
   }
 
@@ -125,7 +128,7 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
       ),
       body: Row(
         children: [
-          // Left: selectable grid
+          // Left: grid of wallpapers
           Expanded(
             flex: 2,
             child: Padding(
@@ -148,7 +151,12 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          child: _buildImage(wall.image),
+                          child: Image.asset(
+                            wall.image,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
                         ),
                         Container(
                           decoration: BoxDecoration(
@@ -197,7 +205,7 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
             ),
           ),
 
-          // Right: detail panel
+          // Right: details + action
           Expanded(
             flex: 3,
             child: Container(
@@ -219,13 +227,11 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Preview',
-                    style: GoogleFonts.poppins(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  Text('Preview',
+                      style: GoogleFonts.poppins(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                      )),
                   const SizedBox(height: 20),
                   Center(
                     child: Container(
@@ -242,25 +248,17 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
                     ),
                   ),
                   const SizedBox(height: 25),
-                  Text(
-                    selected.name,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                    ),
-                  ),
+                  Text(selected.name,
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600, fontSize: 20)),
                   const SizedBox(height: 10),
-                  Text(
-                    selected.category,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
+                  Text(selected.category,
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.grey[600])),
                   const SizedBox(height: 20),
                   Wrap(
                     spacing: 8,
-                    children: selected.tags.map(_buildTag).toList(),
+                    children: selected.tags.map((t) => _buildTag(t)).toList(),
                   ),
                   const SizedBox(height: 20),
                   Expanded(
@@ -280,30 +278,55 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () =>
-                              setState(() => selected.toggleFavourite()),
+                          onPressed: () {
+                            setState(() => selected.toggleFavourite());
+                          },
                           icon: Icon(
                             selected.isFavourite
                                 ? Icons.favorite
                                 : Icons.favorite_border,
                           ),
-                          label: Text(
-                            selected.isFavourite
-                                ? 'Remove Favourite'
-                                : 'Save to Favourites',
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            textStyle: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          label: Text(selected.isFavourite
+                              ? 'Remove Favourite'
+                              : 'Save to Favourites'),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            try {
+                              if (Platform.isWindows) {
+                                final path =
+                                    await _copyAssetToFile(selected.image);
+                                await _setWallpaperWindows(path);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Wallpaper applied successfully!'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'This feature only works on Windows.'),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to set wallpaper: $e'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFFB23F),
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -341,3 +364,4 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
     );
   }
 }
+
