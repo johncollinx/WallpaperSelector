@@ -41,7 +41,7 @@ class WallpaperCard extends StatelessWidget {
             ),
           ),
 
-          // ❤️ Favourite Icon
+          // Favourite Icon
           Positioned(
             top: 10,
             right: 10,
