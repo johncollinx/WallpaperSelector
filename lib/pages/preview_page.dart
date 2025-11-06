@@ -23,10 +23,16 @@ class WallpaperPreviewPage extends StatefulWidget {
 class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
   late List<WallpaperModel> wallpapers;
   late int selectedIndex;
+  
+  // Fix: Declare the function pointer for SystemParametersInfoW
+  late final SystemParametersInfoW _systemParametersInfoW;
 
   @override
   void initState() {
     super.initState();
+    // Fix: Initialize the function pointer by opening user32.dll
+    _systemParametersInfoW = SystemParametersInfoW(DynamicLibrary.open('user32.dll'));
+
     wallpapers = [
       WallpaperModel(
         id: 'w1',
@@ -89,7 +95,8 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
 
   Future<void> _setWallpaperWindows(String imagePath) async {
     final pathPtr = imagePath.toNativeUtf16();
-    final result = SystemParametersInfoW(
+    // Fix: Use the initialized function pointer
+    final result = _systemParametersInfoW(
       SPI_SETDESKWALLPAPER,
       0,
       pathPtr,
