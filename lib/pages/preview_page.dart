@@ -1,17 +1,25 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
+
+import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ffi'; // Added for DynamicLibrary
-import 'package:ffi/ffi.dart';
-import 'package:win32/win32.dart';
 import 'package:image/image.dart' as img;
+import 'package:win32/win32.dart';
+
 import '../models/wallpaper_model.dart';
 
 const int SPI_SETDESKWALLPAPER = 20;
 const int SPIF_UPDATEINIFILE = 0x01;
 const int SPIF_SENDCHANGE = 0x02;
+
+// Define the FFI function signature
+typedef SystemParametersInfoNative = Bool Function(
+    Uint32 uiAction, Uint32 uiParam, Pointer<Utf16> pvParam, Uint32 fWinIni);
+typedef SystemParametersInfoDart = bool Function(
+    int uiAction, int uiParam, Pointer<Utf16> pvParam, int fWinIni);
 
 class WallpaperPreviewPage extends StatefulWidget {
   final WallpaperModel wallpaper;
@@ -24,15 +32,19 @@ class WallpaperPreviewPage extends StatefulWidget {
 class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
   late List<WallpaperModel> wallpapers;
   late int selectedIndex;
-  
-  // Fix: Declare the function pointer using the correct wrapper class
-  late final SystemParametersInfo _systemParametersInfo;
+
+  // Hold the loaded function
+  late SystemParametersInfoDart _systemParametersInfo;
 
   @override
   void initState() {
     super.initState();
-    // Fix: Initialize the function pointer by creating an instance of the wrapper
-    _systemParametersInfo = SystemParametersInfo(DynamicLibrary.open('user32.dll'));
+
+    // Load the function from user32.dll
+    final user32 = DynamicLibrary.open('user32.dll');
+    _systemParametersInfo = user32
+        .lookup<NativeFunction<SystemParametersInfoNative>>('SystemParametersInfoW')
+        .asFunction<SystemParametersInfoDart>();
 
     wallpapers = [
       WallpaperModel(
@@ -96,8 +108,7 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
 
   Future<void> _setWallpaperWindows(String imagePath) async {
     final pathPtr = imagePath.toNativeUtf16();
-    // Fix: Use the initialized function pointer's call() method
-    final result = _systemParametersInfo.call(
+    final result = _systemParametersInfo(
       SPI_SETDESKWALLPAPER,
       0,
       pathPtr,
@@ -105,7 +116,7 @@ class _WallpaperPreviewPageState extends State<WallpaperPreviewPage> {
     );
     calloc.free(pathPtr);
 
-    if (result == 0) {
+    if (!result) {
       final errorCode = GetLastError();
       throw Exception('Failed to set wallpaper (Error $errorCode)');
     }
