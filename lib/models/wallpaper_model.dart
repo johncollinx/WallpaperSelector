@@ -4,7 +4,7 @@ class WallpaperModel {
   final String id; // unique identifier
   final String category;
   final String image;
-  final List<String> tags; // for preview tags (Nature, Ambience, etc.)
+  final List<String> tags;
   bool isFavourite;
   final String description; // for preview page
 
@@ -22,7 +22,7 @@ class WallpaperModel {
     isFavourite = !isFavourite;
   }
 
-  /// Returns a copy with modified fields (useful for immutability and state mgmt)
+  
   WallpaperModel copyWith({
     String? id,
     String? category,
