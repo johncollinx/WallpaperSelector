@@ -21,7 +21,7 @@ class CategoriesGrid extends StatelessWidget {
     final crossAxisCount = maxWidth > 900 ? 4 : 2;
 
     if (isGridView) {
-      // 🟦 GRID MODE WITH DESCRIPTION AND CATEGORY
+      // 🟦 GRID MODE
       return GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -56,10 +56,7 @@ class CategoriesGrid extends StatelessWidget {
                     gradient: const LinearGradient(
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
-                      colors: [
-                        Colors.black87,
-                        Colors.transparent,
-                      ],
+                      colors: [Colors.black87, Colors.transparent],
                     ),
                   ),
                 ),
@@ -71,26 +68,18 @@ class CategoriesGrid extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        wallpaper.name,
+                        wallpaper.category, // ✅ replaced name
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                           shadows: const [
                             Shadow(
-                                color: Colors.black54,
-                                blurRadius: 6,
-                                offset: Offset(1, 1))
+                              color: Colors.black54,
+                              blurRadius: 6,
+                              offset: Offset(1, 1),
+                            )
                           ],
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        wallpaper.category,
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: Colors.white70,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -126,7 +115,7 @@ class CategoriesGrid extends StatelessWidget {
         },
       );
     } else {
-      // 🟨 LIST MODE – RETAIN ALL FEATURES
+      // 🟨 LIST MODE
       return ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -144,7 +133,6 @@ class CategoriesGrid extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Image thumbnail
                   Hero(
                     tag: wallpaper.id,
                     child: ClipRRect(
@@ -158,8 +146,6 @@ class CategoriesGrid extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 18),
-
-                  // Text details
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -167,20 +153,12 @@ class CategoriesGrid extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            wallpaper.name,
+                            wallpaper.category, // ✅ replaced name
                             style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
                             ),
                             overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            wallpaper.category,
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              color: Colors.black54,
-                            ),
                           ),
                           const SizedBox(height: 6),
                           Text(
@@ -196,8 +174,6 @@ class CategoriesGrid extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                  // Favourite icon
                   Padding(
                     padding: const EdgeInsets.only(right: 16),
                     child: Icon(
