@@ -88,7 +88,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🧭 Top Navigation
+            // Top Navigation
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
               child: Row(
@@ -153,7 +153,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
             ),
             const Divider(height: 1, thickness: 1, color: Color(0xFFECECEC)),
 
-            // 🖼 Main Content
+            //  Main Content
             Expanded(
               child: SingleChildScrollView(
                 padding:
@@ -186,7 +186,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                       ),
                       const SizedBox(height: 28),
 
-                      // 🧱 Wallpaper Grid
+                      //  Wallpaper Grid
                       LayoutBuilder(
                         builder: (context, constraints) {
                           int crossAxisCount = constraints.maxWidth ~/ 200;
