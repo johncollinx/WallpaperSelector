@@ -18,7 +18,6 @@ class _FavouritesPageState extends State<FavouritesPage> {
   final List<WallpaperModel> savedWallpapers = [
     WallpaperModel(
       id: 'fav1',
-      name: 'Sunset Lake',
       category: 'Nature',
       image: 'assets/images/nature1.jpg',
       tags: ['Nature', 'Calm', 'Sunset'],
@@ -27,7 +26,6 @@ class _FavouritesPageState extends State<FavouritesPage> {
     ),
     WallpaperModel(
       id: 'fav2',
-      name: 'Golden Hills',
       category: 'Nature',
       image: 'assets/images/nature2.jpg',
       tags: ['Nature', 'Warm', 'Landscape'],
@@ -36,7 +34,6 @@ class _FavouritesPageState extends State<FavouritesPage> {
     ),
     WallpaperModel(
       id: 'fav3',
-      name: 'City Nights',
       category: 'Urban',
       image: 'assets/images/urban.jpg',
       tags: ['City', 'Lights', 'Vibe'],
