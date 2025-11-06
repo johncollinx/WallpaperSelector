@@ -30,7 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔹 Responsive Header Navigation Bar
+            // Responsive Header Navigation Bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
               decoration: const BoxDecoration(
@@ -59,7 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   ),
 
-                  // 🧭 Desktop Nav Buttons or Mobile Menu
+                  //  Desktop Nav Buttons or Mobile Menu
                   if (!isMobile)
                     Row(
                       children: [
@@ -87,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
 
-            // 🔹 Mobile Dropdown Navigation
+            // Mobile Dropdown Navigation
             if (_isMenuOpen && isMobile)
               Container(
                 width: double.infinity,
@@ -106,7 +106,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
 
-            // 🔹 Page Body
+            // Page Body
             Expanded(
               child: SingleChildScrollView(
                 padding:
