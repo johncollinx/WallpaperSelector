@@ -31,7 +31,7 @@ class RouteGenerator {
         } else {
           page = const Scaffold(
             body: Center(
-              child: Text('❌ Invalid arguments for Preview Page'),
+              child: Text('Invalid arguments for Preview Page'),
             ),
           );
         }
