@@ -21,7 +21,7 @@ class CategoriesGrid extends StatelessWidget {
     final crossAxisCount = maxWidth > 900 ? 4 : 2;
 
     if (isGridView) {
-      // 🟦 GRID MODE
+      // GRID MODE
       return GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -115,7 +115,7 @@ class CategoriesGrid extends StatelessWidget {
         },
       );
     } else {
-      // 🟨 LIST MODE
+      // LIST MODE
       return ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
