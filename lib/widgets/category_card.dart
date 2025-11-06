@@ -18,7 +18,7 @@ class CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final subtitleText = wallpaper.tags.isNotEmpty
         ? wallpaper.tags.join(', ')
-        : wallpaper.category;
+        : wallpaper.description; // ✅ use description if no tags
 
     return GestureDetector(
       onTap: onTap,
@@ -27,7 +27,6 @@ class CategoryCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // 🖼️ Background image
             Hero(
               tag: wallpaper.id,
               child: Image.asset(
@@ -37,8 +36,6 @@ class CategoryCard extends StatelessWidget {
                     Container(color: const Color(0xFFE6E6E6)),
               ),
             ),
-
-            // 🌫️ Gradient overlay
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -51,8 +48,6 @@ class CategoryCard extends StatelessWidget {
                 ),
               ),
             ),
-
-            // ❤️ Favourite icon (top-right)
             if (!simplified)
               Positioned(
                 top: 10,
@@ -67,8 +62,6 @@ class CategoryCard extends StatelessWidget {
                   size: 22,
                 ),
               ),
-
-            // 📝 Text overlay (bottom-left)
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Align(
@@ -78,7 +71,7 @@ class CategoryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      wallpaper.name,
+                      wallpaper.category, // ✅ replaced name
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 20,
